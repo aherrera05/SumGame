@@ -11,28 +11,25 @@ export default Game = ({ randomNumbersCount, initialSeconds }) => {
   const [ target, setTarget ] = useState(1);
   const [ remainingSeconds, setRemainingSeconds ] = useState(initialSeconds);
   const [ gameStatus, setGameStatus ] = useState('PLAYING');
+
   // const randomNumbers = Array.from({ length: randomNumbersCount }).map(() => 1 + Math.floor(10 * Math.random()));
   // const target = randomNumbers.slice(0, randomNumbersCount - 2).reduce((acc, cur) => acc + cur, 0);
-
-  
 
   useEffect(() => {
     const firstRandomNumbers = Array.from({ length: randomNumbersCount }).map(() => 1 + Math.floor(10 * Math.random()));
     const firstTarget = firstRandomNumbers.slice(0, randomNumbersCount - 2).reduce((acc, cur) => acc + cur, 0);
-    const shuffleRandomNumbers = shuffle(firstRandomNumbers)
-    setRandomNumbers(shuffleRandomNumbers);
+    const shuffledRandomNumbers = shuffle(firstRandomNumbers);
+    setRandomNumbers(shuffledRandomNumbers);
     setTarget(firstTarget);
 
-    intervalId = setInterval(() => {
-      setRemainingSeconds((seconds)=> seconds-1)
-    }, 1000);
+    intervalId = setInterval(() => setRemainingSeconds(seconds => seconds -1), 1000);
     return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
     setGameStatus(() => getGameStatus());
-    if (remainingSeconds === 0 || gameStatus !== 'PLAYING'){
-      clearInterval(intervalId)
+    if (remainingSeconds === 0 || gameStatus !== 'PLAYING') {
+      clearInterval(intervalId);
     }
   }, [remainingSeconds, selectedNumbers]);
 
@@ -41,8 +38,7 @@ export default Game = ({ randomNumbersCount, initialSeconds }) => {
 
   const getGameStatus = () => {
     const numSelected = selectedNumbers.reduce((acc, cur) => acc + randomNumbers[cur], 0);
-    
-    if ( remainingSeconds === 0 || numSelected > target) {
+    if (remainingSeconds === 0 ||  numSelected > target) {
       return 'LOST';
     } else if (numSelected === target) {
       return 'WON';
@@ -51,18 +47,22 @@ export default Game = ({ randomNumbersCount, initialSeconds }) => {
     }
   }
 
-  /*const status = gameStatus();*/
+  // const status = gameStatus();
 
   return (
     <View>
       <Text style={[styles.target, styles[gameStatus]]}>{target}</Text>
       <Text>{gameStatus}</Text>
       <Text>{remainingSeconds}</Text>
-
       <View style={styles.randomContainer}>
         {randomNumbers.map((randomNumber, index) => (
           <RandomNumber key={index} id={index} number={randomNumber} isSelected={isNumberSelected(index) || gameStatus !== 'PLAYING'} onSelected={selectNumber} />
         ))}
+        <Text style={styles.timer}>Game ends in {this.state.remainingSeconds}</Text>
+        {
+          this.gameStatus !== 'PLAYING' && (
+        <Button title="Play Again" onPress={this.props.onPlayAgain} />
+          )}
       </View>
     </View>
   );
